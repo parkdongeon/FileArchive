@@ -15,18 +15,24 @@ struct node
 	struct node *next_R;
 };
 
-struct node **Heap;
+struct node **Heap;			
+							
+char Code[30] = {};
+int Code_Last_Idx = -1;
 
-int Last_Idx_Heap = 0;
+char Save_Code[ASCII][30] = {};		
+						
+					
+int Last_Idx_Heap = 0;		
 
 
 void Scan_File(unsigned char *Input)
 {
-	FILE *IFile = fopen("Input.txt", "r");
+	FILE *IFile = fopen("Input.txt", "r");		
 
 	int i = 0;
 
-	while (feof(IFile) == 0)
+	while (feof(IFile) == 0)					
 	{
 		Input[i] = fgetc(IFile);				
 		i++;
@@ -209,12 +215,230 @@ struct node *Delete_From_Heap()
 }
 
 
+
+
+
+
+
+struct node* Make_tree()
+{
+	struct node *first = 0;
+	struct node *second = 0;
+
+	while (1)
+	{
+		first = Delete_From_Heap();
+		second = Delete_From_Heap();
+
+
+		if (second == 0)
+		{
+			return first;
+		}
+
+		struct node* Sum_Node = (struct node*)malloc(sizeof(struct node));
+		Sum_Node->Character = '+';
+		Sum_Node->freq = first->freq + second->freq;
+		Sum_Node->next_L = first;
+		Sum_Node->next_R = second;
+
+		add_To_Heap(Sum_Node);
+
+	}
+
+}
+
+void traverseCoding(struct node *me, char _code)
+{
+	Code[++Code_Last_Idx] = _code;
+	if (me->next_L == 0 && me->next_R == 0)
+	{
+
+		strcpy(&(Save_Code[(unsigned char)me->Character][0]), Code);
+
+
+		Code[Code_Last_Idx--] = 0;
+		return;
+	}
+	traverseCoding(me->next_L, '0');
+	traverseCoding(me->next_R, '1');
+	Code[Code_Last_Idx--] = 0;
+}
+
+void Find_Huff_Code(struct node* Tree_Root)
+{
+	traverseCoding(Tree_Root->next_L, '0');
+	traverseCoding(Tree_Root->next_R, '1');
+}
+
+void Show_Huff_Code()
+{
+	printf("\n허프만 코드 테이블로 출력\n>>\n");
+	int i = 0;
+	while (i < ASCII)
+	{
+		if (Save_Code[i][0] != 0)
+		{
+			printf("%c : %s\n", i, &(Save_Code[i][0]));
+		}
+		i++;
+	}
+}
+
+int Encoding(unsigned char* Input, unsigned char *After_Encoding)
+{
+	int Input_idx = 0;
+	int Input_length = 0;
+	unsigned char Input_buff = 0;
+	int Code_idx = 0;
+	int Code_length = 0;
+
+	int After_Encoding_idx = 0;
+
+	int Shift = 0;
+
+	int After_Encoding_bit_length = 0;
+
+	int Code_8bit_cnt = 0;
+
+
+	Input_length = strlen((char*)Input) - 1;
+
+
+	while (Input_length > 0)
+	{
+		Code_length = strlen(&(Save_Code[(int)Input[Input_idx]][0]));
+
+		while (1)
+		{
+			if (Code_length == 0)
+			{
+				Input_idx++;
+				Code_idx = 0;
+				break;
+			}
+			else
+			{
+				if (Save_Code[(int)Input[Input_idx]][Code_idx] == '1')
+				{
+					if (Code_8bit_cnt == 8)
+					{
+						Code_8bit_cnt = 0;
+						After_Encoding_idx++;
+						continue;
+					}
+					else
+					{
+						Input_buff = 0x01 << (7 - Shift);
+						After_Encoding[After_Encoding_idx] |= Input_buff;
+
+						Shift = (Shift + 1) % 8;
+						Code_length--;
+						Code_idx++;
+						Code_8bit_cnt++;
+						After_Encoding_bit_length++;
+					}
+				}
+				else if (Save_Code[(int)Input[Input_idx]][Code_idx] == '0')
+				{
+					if (Code_8bit_cnt == 8)
+					{
+						Code_8bit_cnt = 0;
+						After_Encoding_idx++;
+						Shift = 0;
+						continue;
+
+					}
+					else
+					{
+						Input_buff = 0x00 << (7 - Shift);
+						After_Encoding[After_Encoding_idx] |= Input_buff;
+
+						Shift = (Shift + 1) % 8;
+						Code_length--;
+						Code_idx++;
+						Code_8bit_cnt++;
+						After_Encoding_bit_length++;
+					}
+				}
+			}
+		}
+
+		Input_length--;
+	}
+
+	return After_Encoding_bit_length;
+}
+
+void Print_bin_After_Encoding(unsigned char* After_Encoding, int Used_Bit_Count)
+{
+	FILE *pFile = fopen("After_Eecoding.bin", "wb");
+
+	int will_use_byte = 0;
+
+	if (Used_Bit_Count % 8 == 0)
+	{
+		will_use_byte = Used_Bit_Count / 8;
+	}
+	else
+	{
+		will_use_byte = (Used_Bit_Count / 8) + 1;
+	}
+
+	fwrite(After_Encoding, will_use_byte + 1, 1, pFile);
+	fclose(pFile);
+}
+
+void Read_bin_File(unsigned char* Before_Decoding)
+{
+	FILE *pFile = fopen("After_Eecoding.bin", "rb");
+
+	int i = 0;
+
+	while (feof(pFile) == 0)
+	{
+		Before_Decoding[i] = fgetc(pFile);
+		i++;
+	}
+	fclose(pFile);
+}
+
+
+
+
+
+
+
+
+
+
 int main()
 {
-	unsigned char Input[L] = {};			
+	unsigned char Input[L] = {};
 	Scan_File(Input);
 
-	int Freq[ASCII] = {};		
-	Check_Freq(Input, Freq);	
+	int Freq[ASCII] = {};
+	Check_Freq(Input, Freq);
 	Show_Freq(Freq);
+	Make_Heap(Freq);
+
+	Make_Min_Heap(Freq);
+
+
+	struct node *Tree_Root = Make_tree();
+
+
+	Find_Huff_Code(Tree_Root);
+
+
+	Show_Huff_Code();
+
+
+	unsigned char After_Encoding[L] = {};
+	unsigned char Before_Decoding[L] = {};
+	int Used_Bit_Count = 0;
+	Used_Bit_Count = Encoding(Input, After_Encoding);
+
+	Print_bin_After_Encoding(After_Encoding, Used_Bit_Count);
+
 }
