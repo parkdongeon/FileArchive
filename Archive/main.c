@@ -55,7 +55,28 @@ int main()
 		fp = open(ARCHIVE_NAME, "w+b");			//아카이브 파일 생성
 		if (fp == NULL)								//파일 생성에 실패하면
 			return -1;									//프로그램 종료
+
+		// 새 아카이브 헤더 생성
+		archive->header.magic = 'AF'		//매직넘버 AF 저장
+		archive->header.version = 1;		//파일버전 1 저장
+
+		// 아카이브 파일에 아카이브 헤더 저장
+		if (fwrite(&archive->header, sizeof(ARCHIVE_HEADER), 1, fp) < 1)
+		{
+			printf("아카이브 헤더 쓰기 실패\n");
+			fclose(fp);
+			return -1;
+		}
+
+		archive->fp = fp;		//아카이브파일 포인터 저장
+
+		append(archive,"hello.txt");		//hello.txt 파일 추가
 	}
+
+	fclose(fp); // 아카이브 파일 포인터 닫기
+
+	free(archive); // 동적 메모리 해제 
+	
 	return 0;
 }
 
