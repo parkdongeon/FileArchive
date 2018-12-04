@@ -15,9 +15,21 @@ int main(int argc, char** argv) {
             if (outputFile == NULL || inputFile == NULL) {
                 printf("Can't open files\n'"); return 0;
             }
-            
+ 
             compress(inputFile, outputFile);
-        } 
+        } else { 
+            inputFile = fopen(argv[2], "rb"); 
+            char temp[20]; int length = strlen(argv[2])-4;
+            strncpy(temp, argv[2], length);
+            temp[length] = '\0';
+            outputFile = fopen(temp, "w");
+            
+            if (outputFile == NULL || inputFile == NULL) {
+                printf("Can't open files\n'"); return 0;
+            }
+            
+            decompress(inputFile, outputFile);
+        }
         
         fclose(inputFile); fclose(outputFile); 
     } else {
