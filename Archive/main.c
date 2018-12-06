@@ -23,10 +23,16 @@ typedef struct _FILE_DESC {
 #prama pack(pop)
 
 // 프로그램에서 사용하는 구조체
+typedef struct _FILE_NODE {
+	struct _FILE_NODE *next;
+	FILE_DESC desc;
+} FILE_NODE, *PFILE_NODE;
+
 typedef struct _ARCHIVE {
 	ARCHIVE_HEADER header;
-	FILE *p;
-}ARCHIVE, *PARCHIVE;
+	FILE *fp;
+	FILE_NODE fileLIst;
+} ARCHIVE, *PARCHIVE;
 
 #define ARCHIVE_NAME "archive.bin"
 
@@ -43,7 +49,6 @@ uint32_t getFileSize(FILE *fp)
 
 	return size;
 }
-
 
 // 파일 추가 함수
 int append(PARCHIVE archive, char *filename)
@@ -114,6 +119,8 @@ int main()
 	PARCHIVE archive =malloc(sizeof(ARCHIVE));
 	memset(archive, 0, sizeof(ARCHIVE));
 
+	PFILE_NODE curr;
+
 	FILE *fp = fopen(ARCHIVE_NAME, "r+b");		//아카이브 파일을 읽기모드/쓰기모드로 열기
 	if (fp == NULL)									//아카이브 파일이 없으면
 	{
@@ -132,17 +139,69 @@ int main()
 			fclose(fp);
 			return -1;
 		}
-
-		archive->fp = fp;		//아카이브파일 포인터 저장
-
-		append(archive,"hello.txt");		//hello.txt 파일 추가
+	}
+	else
+	{
+		if(fread(&archive->header, sizeof(ARCHIVE_HEADER), 1, fp) < 1)
+		{
+			printf("아카이브 헤더 읽기 실패\n");
+			fclose(fp);
+			return -1;
+		}
 	}
 
-	fclose(fp); // 아카이브 파일 포인터 닫기
+	if (archive->header.magic != 'AF')
+	{
+		printf("아카이브 파일이 아닙니다.\n");
+		fclose(fp);
+		return -1;
+	}
+	archive->fp = fp;		//아카이브파일 포인터 저장
+
+	int ret = 0;
+	uint32_t size = getFileSize(fp);
+	uint32_t currPos = ftell(fp);
+
+	while(size > currPos)
+	{
+		PFILE_NODE note = malloc(sizeof(FILE_NODE));
+		memset(node,0,sizeof(FILE_NODE));
+
+		if (fread(&node->desc, sizeof(FILE_DESC), 1, fp) < 1)
+		{
+			printf("아카이브 파일 읽기 실패\n");
+			free(node);
+			ret = -1;
+			goto FINALIZE;
+		}
+
+		node->next = archive->fileList.next;
+		archive->fileList.next = node;
+
+		currPos = ftell(fp)+ node->desc.size;
+		fseek(fp, currPos, SEEK_SET);
+
+	}
+
+	list(archive);
+
+FINALIZE:
+	curr = archive->fileList.next;
+	while (curr != NULL)
+	{
+		PFILE_NODE next = curr->next;
+		free(cur);
+
+		curr = next;
+	}
+	//	append(archive,"hello.txt");		//hello.txt 파일 추가
+
+
+	fclose(archive->fp); // 아카이브 파일 포인터 닫기
 
 	free(archive); // 동적 메모리 해제 
 	
-	return 0;
+	return ret;
 }
 
 
