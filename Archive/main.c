@@ -114,6 +114,18 @@ Error1:
 	return ret;
 }
 
+void list(PARCHIVE archive)
+{
+	printf("파일 목록:\n");
+
+	PFILE_NODE curr = archive->fileList.next;
+	while(curr != NULL)
+	{
+		printf("		%s\n", curr->desc.name);
+
+		curr = curr->next;
+	
+}
 int main()
 {
 	PARCHIVE archive =malloc(sizeof(ARCHIVE));
