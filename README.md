@@ -2,13 +2,15 @@ FileArchive.
 
 This program is written in C language.
 
-File compressing and archiving is a method of archiving files in a file and is used extensively.
+File compressing and archiving is a method of archiving files in a file and is used
+
+extensively.
 
 It is a file storage program that uses file archives after compressing specified files.
 
 Compression and archive file functions are implemented.
 
-
+----------------------------------------------------------------------------------------
 
 How to encoding)
 
@@ -24,6 +26,7 @@ How to encoding)
 
 4. The compressed file is stored in the archive.
 
+----------------------------------------------------------------------------------------
 
 How to decoding)
 
