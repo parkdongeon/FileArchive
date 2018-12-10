@@ -210,10 +210,4 @@ void handle_command(char flag, char *filename)
 	fclose(ifp); fclose(ofp);
 }
 
-int main(int argc, char *argv[]) 
-{
-	
-	
-	handle_command(argv[1][0], argv[2]);
-	return 0;	
-}
+
