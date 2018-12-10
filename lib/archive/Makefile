@@ -1,5 +1,5 @@
 CC = gcc
-HEADER = -I../../lib/archive/
+HEADER = -I../../include/archive/
 OBJFILES = archive.o command.o file.o
 
 libarchive.a: $(OBJFILES)
