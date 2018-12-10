@@ -5,7 +5,7 @@
 #include "archive.h"
 #include "file.h"
 
-#define ARCHIVE_NAME "archive.bin“
+#define ARCHIVE_NAME "archive.bin"
 
 PARCHIVE initialize()
 {
