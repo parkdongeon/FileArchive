@@ -1,4 +1,4 @@
-DIRS = archive 
+DIRS = archive compress
 .PHONY: all clean
 
 all:
@@ -6,6 +6,7 @@ all:
 	do \
 		$(MAKE) -C $$d; \
 	done
+
 
 clean:
 	@for d in $(DIRS); \
