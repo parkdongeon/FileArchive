@@ -1,6 +1,6 @@
 CC = gcc
 HEADER = -I../../include/compress
-OBJFILES = compress.o
+OBJFILES = huffman.o
 
 libcompress.a: $(OBJFILES)
 	ar rv libcompress.a $(OBJFILES)

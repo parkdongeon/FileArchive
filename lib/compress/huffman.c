@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "compress.h"
+#include "huffman.h"
 
 #define NODE 0
 #define LEAF 1
