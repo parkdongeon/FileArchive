@@ -79,3 +79,72 @@ Error1:
 
   return ret;
 }
+
+
+void list(PARCHIVE archive)
+{
+  printf("파일 목록:\n");
+
+  PFILE_NODE curr = archive->fileList.next;
+  while (curr != NULL)
+  {
+    printf("    %s\n", curr->desc.name);
+
+    curr = curr->next;
+  }
+}
+
+
+int extract(PARCHIVE archive, char *filename)
+{
+  PFILE_NODE curr = archive->fileList.next;
+
+  while (curr != NULL)
+  {
+    if (strcmp(curr->desc.name, filename) == 0)
+    {
+      int ret = 0;
+      uint32_t size = curr->desc.size;
+      uint8_t *buffer = malloc(size);
+
+      fseek(archive->fp, curr->desc.dataOffset, SEEK_SET);
+
+      if (fread(buffer, size, 1, archive->fp) < 1)
+      {
+        printf("아카이브 파일 읽기 실패\n");
+        ret = -1;
+
+        goto Error1;
+      }
+
+      FILE *fp = fopen(filename, "wb");
+      if (fp == NULL)
+      {
+        printf("%s 파일 열기 실패\n", filename);
+        ret = -1;
+        goto Error1;
+      }
+
+      if (fwrite(buffer, size, 1, fp) < 1)
+      {
+        printf("%s 파일 쓰기 실패\n", filename);
+        ret = -1;
+        goto Error2;
+      }
+
+      printf("%s 파일 추출 성공\n크기: %d\n", filename, size);
+
+    Error2:
+      fclose(fp);
+
+    Error1:
+      free(buffer);
+
+      return ret;
+    }
+
+    curr = curr->next;
+  }
+
+  return -1;
+}
