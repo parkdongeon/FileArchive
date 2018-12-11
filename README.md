@@ -12,7 +12,7 @@ Compression and archive file functions are implemented.
 
 ----------------------------------------------------------------------------------------
 
-# How to encoding)
+# How to encoding
 
 1. Select a file and generate an encoding file using the Huffman coding algorithm.
 
@@ -28,7 +28,7 @@ Compression and archive file functions are implemented.
 
 ----------------------------------------------------------------------------------------
 
-# How to decoding)
+# How to decoding
 
 1. You can view a list of files stored in the archive.
 
