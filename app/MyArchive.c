@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
       {
         printf("%s 파일 추가 실패\n", filename);
       }
+      remove(filename);
     }
     else
     {

@@ -117,6 +117,7 @@ int main(int argc, char *argv[]) {
                 }
                 mask >>= 1;
             }
+        remove(ifname);
         }
     }
     
